@@ -1,5 +1,6 @@
-import * as THREE from "three";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js";
 
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js";
 class BasicWorldDemo {
   constructor() {
     this._Initialize();
@@ -13,8 +14,9 @@ class BasicWorldDemo {
     this._threejs.setPixelRatio(window.devicePixelRatio);
     this._threejs.setSize(window.innerWidth, window.innerHeight);
 
-    document.body.appendChild(this._thireejs.domElement);
+    document.body.appendChild(this._threejs.domElement);
 
+    // 화면 사이즈 변경될 때 업데이트
     window.addEventListener(
       "resize",
       () => {
@@ -29,7 +31,7 @@ class BasicWorldDemo {
     const near = 1.0;
     const far = 1000.0;
     // 카메라 설정
-    this._camera = new THREE.PerspectiveCamera(fov, aspect, near, fear);
+    this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.set(75, 20, 0);
 
     /* Scene 설정 */
@@ -54,6 +56,41 @@ class BasicWorldDemo {
     light = new THREE.AmbientLight(0x404040);
     this._scene.add(light);
 
+    /* 큐브맵(배경) 생성 */
+    const controls = new OrbitControls(this._camera, this._threejs.domElement);
+    controls.target.set(0, 0, 0);
+    controls.update();
+
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      "./resources/posx.jpg",
+      "./resources/negx.jpg",
+      "./resources/posy.jpg",
+      "./resources/negy.jpg",
+      "./resources/posz.jpg",
+      "./resources/negz.jpg",
+    ]);
+    this._scene.background = texture;
+
+    // 렌더링 (계속 재귀호출)
     this._RAF();
   }
+
+  _OnWindowReSize() {
+    this._camera.aspect = window.innerWidth / window.innerHeight;
+    this._camera.updateProjectionMatrix();
+    this._threejs.setSize(window, innerWidth, window.innerHeight);
+  }
+
+  _RAF() {
+    requestAnimationFrame(() => {
+      this._threejs.render(this._scene, this._camera);
+      this._RAF();
+    });
+  }
 }
+
+let _APP = null;
+window.addEventListener("DOMContentLoaded", () => {
+  _APP = new BasicWorldDemo();
+});
