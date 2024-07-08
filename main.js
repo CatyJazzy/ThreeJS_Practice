@@ -86,22 +86,14 @@ class BasicWorldDemo {
     plane.rotation.x = -Math.PI / 2;
     this._scene.add(plane);
 
-    /* 박스 생성 */
-    const box = new THREE.Mesh(
-      new THREE.BoxGeometry(2, 2, 2),
-      new THREE.MeshStandardMaterial({
-        color: 0x808080,
-      })
-    );
-    box.position.set(0, 1, 0);
-    box.castShadow = true;
-    box.receiveShadow = true;
-    this._scene.add(box);
-
+    // 3D모델 로드
+    this._LoadModel();
     // 렌더링 (계속 재귀호출)
     this._RAF();
   }
-  _LoadMoel() {
+
+  /* 3D모델 로더 */
+  _LoadModel() {
     const loader = new GLTFLoader();
     loader.load("./resources/rocket/Rocket_Ship_01.gltf", (gltf) => {
       gltf.scene.traverse((c) => {
