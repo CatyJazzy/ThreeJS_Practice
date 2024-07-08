@@ -1,6 +1,6 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js";
-
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
 class BasicWorldDemo {
   constructor() {
     this._Initialize();
@@ -100,6 +100,15 @@ class BasicWorldDemo {
 
     // 렌더링 (계속 재귀호출)
     this._RAF();
+  }
+  _LoadMoel() {
+    const loader = new GLTFLoader();
+    loader.load("./resources/rocket/Rocket_Ship_01.gltf", (gltf) => {
+      gltf.scene.traverse((c) => {
+        c.castShadow = true;
+      });
+      this._scene.add(gltf.scene);
+    });
   }
 
   _OnWindowReSize() {
