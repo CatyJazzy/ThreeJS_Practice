@@ -72,6 +72,18 @@ class BasicWorldDemo {
     ]);
     this._scene.background = texture;
 
+    /* 평면 생성 */
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 80, 1, 1),
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+      })
+    );
+    plane.castShadow = false;
+    plane.receiveShadow = true;
+    plane.rotation.x = -20;
+    this._scene.add(plane);
+
     // 렌더링 (계속 재귀호출)
     this._RAF();
   }
@@ -79,7 +91,7 @@ class BasicWorldDemo {
   _OnWindowReSize() {
     this._camera.aspect = window.innerWidth / window.innerHeight;
     this._camera.updateProjectionMatrix();
-    this._threejs.setSize(window, innerWidth, window.innerHeight);
+    this._threejs.setSize(window.innerWidth, window.innerHeight);
   }
 
   _RAF() {
