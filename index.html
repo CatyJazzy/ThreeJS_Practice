@@ -18,37 +18,38 @@
       import * as THREE from "https://cdn.jsdelivr.net/npm/three/build/three.module.js";
 
       /* 초기세팅 */
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      ); // 시야각. 종횡비. near. far
       const renderer = new THREE.WebGLRenderer();
       renderer.setSize(window.innerWidth, window.innerHeight);
-
       // renderer엘리먼트를 HTML문서로 삽입 (canvas엘리먼트임, renderer가 scene을 나타내는 구역)
       document.body.appendChild(renderer.domElement);
 
-      /* 큐브 생성 */
-      const geometry = new THREE.BoxGeometry(1, 1, 1);
-      const material = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-      });
-      const cube = new THREE.Mesh(geometry, material);
-      scene.add(cube);
-      camera.position.z = 5;
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        1,
+        500
+      ); // 시야각. 종횡비. near. far
+      camera.position.set(0, 0, 100);
+      camera.lookAt(0, 0, 0);
 
-      /* scene 렌더링 */
-      function animate() {
-        requestAnimationFrame(animate);
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
+      const scene = new THREE.Scene();
 
-        renderer.render(scene, camera);
-      }
-      animate();
+      // 선의 재질을 정의
+      const material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+      // 꼭짓점에 대한 기하학적 정의
+      const points = [];
+      points.push(new THREE.Vector3(-10, 0, 0));
+      points.push(new THREE.Vector3(0, 10, 0));
+      points.push(new THREE.Vector3(10, 0, 0));
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      // 선 생성
+      const line = new THREE.Line(geometry, material);
+      // Scene에 추가
+      scene.add(line);
+
+      // 렌더링
+      renderer.render(scene, camera);
     </script>
   </body>
 </html>
