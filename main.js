@@ -8,7 +8,9 @@ class BasicWorldDemo {
 
   _Initialize() {
     /* three.js 기본 param들 설정 */
-    this._threejs = new THREE.WebGLRenderer();
+    this._threejs = new THREE.WebGLRenderer({
+      antialias: true,
+    });
     this._threejs.shadowMap.enabled = true;
     this._threejs.shadowMap.type = THREE.PCFSoftShadowMap;
     this._threejs.setPixelRatio(window.devicePixelRatio);
@@ -38,11 +40,11 @@ class BasicWorldDemo {
     this._scene = new THREE.Scene();
 
     /* 조명 설정 */
-    let light = new THREE.DirectionalLight(0xffffff);
+    let light = new THREE.DirectionalLight(0xffffff, 1.0);
     light.position.set(100, 100, 100);
     light.target.position.set(0, 0, 0);
     light.castShadow = true; // 동적 그림자 생성
-    light.shadow.bias = -0.01;
+    light.shadow.bias = -0.001;
     light.shadow.mapSize.width = 2048;
     light.shadow.mapSize.height = 2048;
     light.shadow.camera.near = 1.0;
@@ -81,8 +83,20 @@ class BasicWorldDemo {
     );
     plane.castShadow = false;
     plane.receiveShadow = true;
-    plane.rotation.x = -20;
+    plane.rotation.x = -Math.PI / 2;
     this._scene.add(plane);
+
+    /* 박스 생성 */
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(2, 2, 2),
+      new THREE.MeshStandardMaterial({
+        color: 0x808080,
+      })
+    );
+    box.position.set(0, 1, 0);
+    box.castShadow = true;
+    box.receiveShadow = true;
+    this._scene.add(box);
 
     // 렌더링 (계속 재귀호출)
     this._RAF();
