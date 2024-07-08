@@ -1,6 +1,8 @@
 import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
+
 import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
+import { FBXLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/FBXLoader.js";
 class BasicWorldDemo {
   constructor() {
     this._Initialize();
@@ -44,7 +46,7 @@ class BasicWorldDemo {
     light.position.set(100, 100, 100);
     light.target.position.set(0, 0, 0);
     light.castShadow = true; // 동적 그림자 생성
-    light.shadow.bias = -0.001;
+    light.shadow.bias = -0.002;
     light.shadow.mapSize.width = 2048;
     light.shadow.mapSize.height = 2048;
     light.shadow.camera.near = 1.0;
@@ -87,15 +89,41 @@ class BasicWorldDemo {
     this._scene.add(plane);
 
     // 3D모델 로드
-    this._LoadModel();
+    // this._LoadModel();
+
+    this._LoadAnimatedModel();
     // 렌더링 (계속 재귀호출)
     this._RAF();
+  }
+
+  _LoadAnimatedModel() {
+    this._mixers = [];
+    // 3d 모델 로드
+    const loader = new FBXLoader();
+    loader.setPath("./resources/man/");
+    loader.load("Ch01_nonPBR.fbx", (fbx) => {
+      fbx.scale.setScalar(0.1);
+      fbx.traverse((c) => {
+        c.castShadow = true;
+      });
+
+      // 애니메이션 입힘
+      const anim = new FBXLoader();
+      anim.setPath("./resources/man/");
+      anim.load("Dancing.fbx", (anim) => {
+        this._mixer = new THREE.AnimationMixer(fbx);
+        this._mixers.push(this._mixer);
+        const idle = this._mixer.clipAction(anim.animations[0]);
+        idle.play();
+      });
+      this._scene.add(fbx);
+    });
   }
 
   /* 3D모델 로더 */
   _LoadModel() {
     const loader = new GLTFLoader();
-    loader.load("./resources/rocket/Rocket_Ship_01.gltf", (gltf) => {
+    loader.load("./resources/basketball/white_basketball.gltf", (gltf) => {
       gltf.scene.traverse((c) => {
         c.castShadow = true;
       });
@@ -110,10 +138,23 @@ class BasicWorldDemo {
   }
 
   _RAF() {
-    requestAnimationFrame(() => {
-      this._threejs.render(this._scene, this._camera);
+    requestAnimationFrame((t) => {
+      if (this._previousRAF === null) {
+        this._previousRAF = t;
+      }
+
       this._RAF();
+
+      this._threejs.render(this._scene, this._camera);
+      this._Step(t - this._previousRAF);
+      this._previousRAF = t;
     });
+  }
+  _Step(timeElapsed) {
+    const timeElapsedS = timeElapsed * 0.001;
+    if (this._mixers) {
+      this._mixers.map((m) => m.update(timeElapsedS));
+    }
   }
 }
 
